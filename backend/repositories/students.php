@@ -58,6 +58,11 @@ function createStudent($conn, $fullname, $email, $age)
     ];
 }
 
+function checkEmailExists($conexion, $email) {
+    $sql = "SELECT email FROM students WHERE email='$email'";
+    return $conexion->query($sql);
+}
+
 function updateStudent($conn, $id, $fullname, $email, $age) 
 {
     $sql = "UPDATE students SET fullname = ?, email = ?, age = ? WHERE id = ?";
