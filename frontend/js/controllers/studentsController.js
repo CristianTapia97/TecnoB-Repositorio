@@ -181,6 +181,7 @@ async function confirmDelete(id)
     } 
     catch (err) 
     {
+        alert(err.message);
         console.error('Error al borrar:', err.message);
     }
 }

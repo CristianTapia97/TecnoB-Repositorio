@@ -79,4 +79,19 @@ function deleteStudent($conn, $id)
     //Se retorna fila afectadas para validar en controlador
     return ['deleted' => $stmt->affected_rows];
 }
+function tieneAsignaciones($conn, $id) 
+{
+    // Devuelve 1 si existe al menos una, 0 si no existe ninguna.
+    $sql = "SELECT EXISTS(SELECT 1 FROM students_subjects WHERE student_id = ?) AS 'existe'";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $row = $result->fetch_assoc();
+
+    return (bool)$row['existe'];
+
+}
 ?>

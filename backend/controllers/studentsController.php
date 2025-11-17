@@ -76,6 +76,17 @@ function handlePut($conn)
 function handleDelete($conn) 
 {
     $input = json_decode(file_get_contents("php://input"), true);
+    
+    $tieneAsignaciones = tieneAsignaciones($conn, $input['id']);
+
+    if ($tieneAsignaciones) 
+    {
+        http_response_code(409); 
+        echo json_encode([
+            "error" => "No se puede borrar el estudiante. Está presente en una o más asignaciones."
+        ]);
+        return; 
+    }
 
     $result = deleteStudent($conn, $input['id']);
     if ($result['deleted'] > 0) 
