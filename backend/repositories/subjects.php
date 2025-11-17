@@ -76,4 +76,16 @@ function deleteSubject($conn, $id)
 
     return ['deleted' => $stmt->affected_rows];
 }
+
+function searchIdSubjects($conn, $subject_id) 
+{
+    $sql = "SELECT EXISTS(SELECT 1 FROM students_subjects WHERE subject_id = ?) as found";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $subject_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    return (int)$row['found']; 
+}
 ?>

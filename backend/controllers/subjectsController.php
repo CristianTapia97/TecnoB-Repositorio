@@ -76,6 +76,13 @@ function handlePut($conn)
 function handleDelete($conn) 
 {
     $input = json_decode(file_get_contents("php://input"), true);
+
+    if (searchIdSubjects($conn, $input['id']) > 0) 
+    {
+        http_response_code(500);
+        echo json_encode(["error" => "No se puede eliminar una materia asociada a uno o más estudiantes."]);
+        return;
+    }
     
     $result = deleteSubject($conn, $input['id']);
     if ($result['deleted'] > 0) 

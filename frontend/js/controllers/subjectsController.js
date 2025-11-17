@@ -165,6 +165,65 @@ async function confirmDeleteSubject(id)
     }
     catch (err)
     {
+        showError(err.message|| 'Error al borrar la materia');
         console.error('Error al borrar materia:', err.message);
+    }
+}
+
+function showError(message) {
+
+    const modal = document.createElement('div');
+    const msg = document.createElement('p');
+    const mensaje = document.createElement('div');
+    const content = document.createElement('div');
+    const header = document.createElement('header');
+    const title = document.createElement('h3');
+
+    //Le doy todos los valores al modal que seria la estructura principal
+    modal.className = 'w3-modal w3-animate-opacity w3-flex ';
+    modal.style.zIndex = '9999';
+    modal.style.display = 'block';
+    
+    // CONTENIDO DEL MENSAJE DEL ERROR (Donde van el mensaje de error, boton y titulo)
+    content.className = 'w3-modal-content w3-display-container w3-card-4';
+    content.style.maxWidth = '400px';
+
+    // Cabecera del mensaje de error (Incluye solo el titulo)
+    header.className = 'w3-container w3-red w3-center';
+
+    // Titulo
+    title.textContent = 'Error!';
+
+    // Div Donde van el mensaje y el boton
+    mensaje.className = 'w3-container w3-padding-16 w3-light-gray';
+    mensaje.style.display = 'flex';
+    mensaje.style.flexDirection = 'column';
+    mensaje.style.alignItems = 'center';
+
+    //Mensaje de error
+    msg.textContent = message;
+
+    //Creo el boton de cerrar
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'OK';
+    closeBtn.className = 'w3-button w3-center w3-round-xlarge w3-white w3-hover-gray w3-margin w3-border';
+    closeBtn.addEventListener('click', () => closeError());
+
+    //Armo el bloque
+    header.appendChild(title);
+    mensaje.appendChild(msg);
+    mensaje.appendChild(closeBtn);
+    content.appendChild(header);
+    content.appendChild(mensaje);
+
+    //Le doy el contenido al modal
+    modal.appendChild(content);
+
+    // y por ultimo le doy al body el modal
+    document.body.appendChild(modal);
+
+    //Funcion para borrar el mensaje de error
+    function closeError() {
+        modal.remove();
     }
 }
