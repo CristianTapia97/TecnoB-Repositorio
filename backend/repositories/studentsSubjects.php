@@ -22,33 +22,29 @@ function assignSubjectToStudent($conn, $student_id, $subject_id, $approved)
         'id' => $conn->insert_id
     ];
 }
-function getPaginatedStudentsSubjects($conn, $limit, $offset) 
-{
-    $sql = "SELECT  students_subjects.id, students_subjects.student_id, students_subjects.subject_id, students_subjects.approved, students.fullname AS student_fullname, subjects.name AS subject_name FROM students_subjects JOIN subjects ON students_subjects.subject_id = subjects.id JOIN students ON students_subjects.student_id = students.id LIMIT ? OFFSET ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ii", $limit, $offset);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    return $result->fetch_all(MYSQLI_ASSOC);
-}
+
 //Query escrita sin ALIAS resumidos (a mi me gusta más):
 function getAllSubjectsStudents($conn) 
 {
-    $sql = "SELECT students_subjects.id, students_subjects.student_id, students_subjects.subject_id, students_subjects.approved, students.fullname AS student_fullname, subjects.name AS subject_name FROM students_subjects JOIN subjects ON students_subjects.subject_id = subjects.id JOIN students ON students_subjects.student_id = students.id";
+    $sql = "SELECT students_subjects.id,
+                students_subjects.student_id,
+                students_subjects.subject_id,
+                students_subjects.approved,
+                students.fullname AS student_fullname,
+                subjects.name AS subject_name
+            FROM students_subjects
+            JOIN subjects ON students_subjects.subject_id = subjects.id
+            JOIN students ON students_subjects.student_id = students.id";
 
     return $conn->query($sql)->fetch_all(MYSQLI_ASSOC);
 }
-function getTotalStudentsSubjects($conn) 
-{
-    $sql = "SELECT COUNT(*) as total_relaciones FROM students_subjects JOIN subjects ON students_subjects.subject_id = subjects.id JOIN students ON students_subjects.student_id = students.id";
-    $result = $conn->query($sql);
-    $row = $result->fetch_assoc();
-    return (int)$row['total_relaciones'];
-}
+
 //Query escrita con ALIAS resumidos:
 function getSubjectsByStudent($conn, $student_id) 
 {
-    $sql = "SELECT ss.subject_id, s.name, ss.approved FROM students_subjects ss JOIN subjects s ON ss.subject_id = s.id
+    $sql = "SELECT ss.subject_id, s.name, ss.approved
+        FROM students_subjects ss
+        JOIN subjects s ON ss.subject_id = s.id
         WHERE ss.student_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $student_id);
@@ -57,6 +53,20 @@ function getSubjectsByStudent($conn, $student_id)
 
     return $result->fetch_all(MYSQLI_ASSOC); 
 }
+
+// inciso E
+function repite($conn, $student_id, $subject_id) 
+{
+    $sql = "SELECT ss.id 
+    FROM students_subjects ss 
+    WHERE ss.student_id = ? AND ss.subject_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $student_id, $subject_id);
+    $stmt->execute();
+    $result= $stmt->get_result();
+    return count($result->fetch_all(MYSQLI_ASSOC)) > 0;
+}
+//
 
 function updateStudentSubject($conn, $id, $student_id, $subject_id, $approved) 
 {

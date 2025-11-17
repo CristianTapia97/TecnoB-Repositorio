@@ -5,16 +5,12 @@
 *    License     : http://www.gnu.org/licenses/gpl.txt  GNU GPL 3.0
 *    Date        : Mayo 2025
 *    Status      : Prototype
-*    Iteration   : 3.0 ( prototype )
+*    Iteration   : 1.0 ( prototype )
 */
 
 import { studentsAPI } from '../api/studentsAPI.js';
 import { subjectsAPI } from '../api/subjectsAPI.js';
 import { studentsSubjectsAPI } from '../api/studentsSubjectsAPI.js';
-
-let currentPage = 1;
-let totalPages = 1;
-const limit = 5;
 
 document.addEventListener('DOMContentLoaded', () => 
 {
@@ -22,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () =>
     setupFormHandler();
     setupCancelHandler();
     loadRelations();
-    setupPaginationControls();
 });
 
 async function initSelects() 
@@ -74,17 +69,47 @@ function setupFormHandler()
             } 
             else 
             {
-                await studentsSubjectsAPI.create(relation);
+                try {
+                    await studentsSubjectsAPI.create(relation);
+                }
+                catch (err) {
+                    creaCartel("Error. No se puede repetir asignacion de alumno y materia");
+                }
             }
             clearForm();
             loadRelations();
         } 
         catch (err) 
         {
-            console.error('Error guardando relación:', err.message);
+            creaCartel(err.message);
         }
     });
 }
+
+
+// inciso E
+function creaCartel(mensaje)
+{
+    const cartel = document.createElement('div');
+    const texto = document.createElement('p');
+    const img = document.createElement('img');
+    img.className = "img-cartel";
+    img.src = "../img/esqueleto.gif";
+    cartel.appendChild(img);
+   // cartel.textContent = "Error. No se puede repetir asignacion de alumno y materia";
+    cartel.className = "cartel";
+    texto.className = "texto-cartel";
+    texto.textContent = mensaje;
+    const btnCerrar = document.createElement('div');
+    btnCerrar.className = "cruz";
+    btnCerrar.textContent = "Cerrar";
+    btnCerrar.onclick = () => cartel.remove();
+    cartel.appendChild(btnCerrar);
+    cartel.appendChild(texto);
+    cartel.appendChild(img);
+    document.body.appendChild(cartel);
+
+};
 
 function setupCancelHandler()
 {
@@ -94,32 +119,7 @@ function setupCancelHandler()
         document.getElementById('relationId').value = '';
     });
 }
-function setupPaginationControls() 
-{
-    document.getElementById('prevPage').addEventListener('click', () => 
-    {
-        if (currentPage > 1) 
-        {
-            currentPage--;
-            loadRelations();
-        }
-    });
 
-    document.getElementById('nextPage').addEventListener('click', () => 
-    {
-        if (currentPage < totalPages) 
-        {
-            currentPage++;
-            loadRelations();
-        }
-    });
-
-    document.getElementById('resultsPerPage').addEventListener('change', e => 
-    {
-        currentPage = 1;
-        loadRelations();
-    });
-}
 function getFormData() 
 {
     return{
@@ -140,26 +140,27 @@ async function loadRelations()
 {
     try 
     {
-        const resPerPage = parseInt(document.getElementById('resultsPerPage').value, 10) || limit;
-        const data = await studentsSubjectsAPI.fetchPaginated(currentPage, resPerPage);
-        console.log(data);
-        const relations = data.studentssubjects || data.data || [];
-        const total = data.total || relations.length;
-        /*if (!Array.isArray(relations)) {
-            throw new Error('Las relaciones no son un array');
-        }*/
+        const relations = await studentsSubjectsAPI.fetchAll();
         
+        /**
+         * DEBUG
+         */
+        //console.log(relations);
+
+        /**
+         * En JavaScript: Cualquier string que no esté vacío ("") es considerado truthy.
+         * Entonces "0" (que es el valor que llega desde el backend) es truthy,
+         * ¡aunque conceptualmente sea falso! por eso: 
+         * Se necesita convertir ese string "0" a un número real 
+         * o asegurarte de comparar el valor exactamente. 
+         * Con el siguiente código se convierten todos los string approved a enteros.
+         */
         relations.forEach(rel => 
         {
             rel.approved = Number(rel.approved);
         });
         
         renderRelationsTable(relations);
-        
-        // Actualizar paginación
-        totalPages = Math.ceil(total / resPerPage);
-        document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
-        
     } 
     catch (err) 
     {

@@ -38,16 +38,26 @@ function handlePost($conn)
 {
     $input = json_decode(file_get_contents("php://input"), true);
     
-    $result = assignSubjectToStudent($conn, $input['student_id'], $input['subject_id'], $input['approved']);
-    if ($result['inserted'] > 0) 
-    {
-        echo json_encode(["message" => "Asignación realizada"]);
-    } 
-    else 
-    {
-        http_response_code(500);
-        echo json_encode(["error" => "Error al asignar"]);
-    }
+    
+    // inciso E
+        if (repite($conn, $input['student_id'], $input['subject_id']) == false) {
+            $result = assignSubjectToStudent($conn, $input['student_id'], $input['subject_id'], $input['approved']);
+            if ($result['inserted'] > 0) 
+            {
+                echo json_encode(["message" => "Asignación realizada"]);
+            } 
+            else 
+            {
+                http_response_code(500);
+                echo json_encode(["error" => "Error al asignar"]);
+            }
+        }
+        else {
+            http_response_code(400);
+            echo json_encode(["error" => "Error. No se puede repetir asignacion de alumno y materia",
+                            "message" => "Error. No se puede repetir asignacion de alumno y materia"]);
+        }
+    
 }
 
 function handlePut($conn) 
