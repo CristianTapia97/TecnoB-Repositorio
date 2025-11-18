@@ -59,7 +59,7 @@ function createStudent($conn, $fullname, $email, $age)
 }
 
 function checkEmailExists($conexion, $email) {
-    $sql = "SELECT email FROM students WHERE email='$email'";
+    $sql = "SELECT id, email FROM students WHERE email='$email'";
     return $conexion->query($sql);
 }
 
