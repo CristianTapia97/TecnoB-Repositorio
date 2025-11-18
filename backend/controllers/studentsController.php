@@ -92,8 +92,13 @@ function handlePut($conn)
     } 
     else 
     {
-        http_response_code(500);
-        echo json_encode(["error" => "No se pudo actualizar"]);
+        if ($existingStudent['id'] == $input['id']){
+            echo json_encode(["message" => "Actualizado correctamente sin cambios"]);
+        }  
+        else {
+            http_response_code(500);
+            echo json_encode(["error" => "No se pudo actualizar"]);
+        }
     }
 }
 
