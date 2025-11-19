@@ -65,7 +65,12 @@ function setupFormHandler()
         {
             if (relation.id) 
             {
-                await studentsSubjectsAPI.update(relation);
+                try {
+                    await studentsSubjectsAPI.update(relation);
+                }
+                catch (err) {
+                    creaCartel("Error. No se puede repetir asignacion de alumno y materia");
+                }
             } 
             else 
             {

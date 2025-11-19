@@ -72,14 +72,20 @@ function handlePut($conn)
     }
 
     $result = updateStudentSubject($conn, $input['id'], $input['student_id'], $input['subject_id'], $input['approved']);
-    if ($result['updated'] > 0) 
-    {
-        echo json_encode(["message" => "Actualización correcta"]);
-    } 
-    else 
-    {
-        http_response_code(500);
-        echo json_encode(["error" => "No se pudo actualizar"]);
+    if (repite($conn, $input['student_id'], $input['subject_id']) == false) {
+        if ($result['updated'] > 0) 
+        {
+            echo json_encode(["message" => "Actualización correcta"]);
+        } 
+        else 
+        {
+            http_response_code(500);
+            echo json_encode(["error" => "No se pudo actualizar"]);
+        }
+    } else {
+        http_response_code(400);
+        echo json_encode(["error" => "No se pudo actualizar"], 
+            ["message" => "No se puede repetir asignacion entre estudiante y materia"]);
     }
 }
 
